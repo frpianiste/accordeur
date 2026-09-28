@@ -1,23 +1,26 @@
 import './style.css';
 import { Metronome } from './metronome.js';
 import { Accordeur, CORDES } from './accordeur.js';
-import { Tonalite } from './tonalite.js';
+import { Tonalite, NOTES } from './tonalite.js';
+import { Voix } from './voix.js';
 
 const $ = (id) => document.getElementById(id);
 
 /* ---------- Onglets ---------- */
 function afficher(nom) {
-  for (const v of ['metro', 'accord', 'tonal']) {
+  for (const v of ['metro', 'accord', 'tonal', 'cercle']) {
     $('vue-' + v).hidden = v !== nom;
     $('onglet-' + v).setAttribute('aria-selected', v === nom);
   }
   if (nom !== 'metro') arreterMetronome();
   if (nom !== 'accord') arreterAccordeur();
   if (nom !== 'tonal') arreterTonalite();
+  if (nom !== 'cercle') arreterCercle();
 }
 $('onglet-metro').onclick = () => afficher('metro');
 $('onglet-accord').onclick = () => afficher('accord');
 $('onglet-tonal').onclick = () => afficher('tonal');
+$('onglet-cercle').onclick = () => afficher('cercle');
 
 /* ---------- Métronome ---------- */
 const affichage = $('bpm'), curseur = $('curseur'), mesure = $('mesure');
@@ -171,5 +174,85 @@ ecouter.onclick = async () => {
     etatTonal.textContent = 'Chante, joue ou mets de la musique près du micro';
     erreurTonal.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
     erreurTonal.hidden = false;
+  }
+};
+
+/* ---------- Cercle : écart en demi-tons par rapport au 00 ---------- */
+const SVG = 'http://www.w3.org/2000/svg';
+const point = (angle, r) => {
+  const a = (angle * Math.PI) / 180;
+  return [150 + r * Math.sin(a), 150 - r * Math.cos(a)];
+};
+// 24 graduations (une tous les 15°) : 00 en haut, +1…+12 à droite, −1…−12 à gauche
+for (let k = -11; k <= 12; k++) {
+  const angle = k * 15;
+  const [x1, y1] = point(angle, 98), [x2, y2] = point(angle, 108);
+  const tic = document.createElementNS(SVG, 'line');
+  tic.setAttribute('class', k === 0 ? 'tic zero' : 'tic');
+  tic.setAttribute('x1', x1); tic.setAttribute('y1', y1);
+  tic.setAttribute('x2', x2); tic.setAttribute('y2', y2);
+  $('graduations').appendChild(tic);
+}
+for (let k = -12; k <= 12; k++) {
+  const angle = k === 12 ? 168 : k === -12 ? -168 : k * 15; // +12 et −12 se rejoignent en bas
+  const [x, y] = point(angle, 128);
+  const t = document.createElementNS(SVG, 'text');
+  t.setAttribute('class', k === 0 ? 'num zero' : 'num');
+  t.setAttribute('x', x); t.setAttribute('y', y);
+  t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
+  t.textContent = k === 0 ? '00' : k > 0 ? String(k) : '−' + -k;
+  $('graduations').appendChild(t);
+}
+
+const nomNote = (midi) => NOTES[((Math.round(midi) % 12) + 12) % 12];
+const cEtat = $('c-etat'), cNote = $('c-note'), cDec = $('c-decalage');
+const cEcouter = $('c-ecouter'), cErreur = $('c-erreur');
+let zero = null; // numéro de la note de départ (le 00)
+
+function poserAiguille(demiTons) {
+  const d = Math.max(-12, Math.min(12, demiTons));
+  $('aiguille-c').setAttribute('transform', `rotate(${d * 15} 150 150)`);
+}
+
+const cercle = new Voix((midi) => {
+  if (midi === null) {
+    cNote.textContent = '–';
+    cDec.textContent = '';
+    return;
+  }
+  if (zero === null) zero = Math.round(midi);
+  const ecart = midi - zero;
+  poserAiguille(ecart);
+  cNote.textContent = nomNote(midi);
+  const n = Math.round(ecart);
+  cDec.textContent = n === 0 ? '00' : (n > 0 ? '+' : '−') + Math.abs(n);
+  cEtat.textContent = `00 = ${nomNote(zero)}`;
+});
+
+function arreterCercle() {
+  cercle.arreter();
+  cEcouter.textContent = 'Écouter';
+  cEcouter.classList.remove('marche');
+}
+
+$('c-zero').onclick = () => {
+  zero = null;
+  poserAiguille(0);
+  cNote.textContent = '–';
+  cDec.textContent = '';
+  cEtat.textContent = 'Chante la note qui sera le 00';
+};
+
+cEcouter.onclick = async () => {
+  cErreur.hidden = true;
+  if (cercle.actif) return arreterCercle();
+  try {
+    await cercle.demarrer();
+    cEcouter.textContent = 'Arrêter';
+    cEcouter.classList.add('marche');
+  } catch (e) {
+    cercle.arreter();
+    cErreur.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
+    cErreur.hidden = false;
   }
 };
