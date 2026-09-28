@@ -2,12 +2,33 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Accordeur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f2a2e" />
+  <title>Accordeur — Métronome</title>
 </head>
 <body>
-  <h1>Accordeur</h1>
-  <p>Bientôt : métronome, accordeur guitare et tonalité.</p>
+  <main>
+    <h1>Métronome</h1>
+
+    <div class="tempo">
+      <button id="moins" aria-label="Ralentir de 1">−</button>
+      <div><output id="bpm">100</output><span>pulsations par minute</span></div>
+      <button id="plus" aria-label="Accélérer de 1">+</button>
+    </div>
+    <input id="curseur" type="range" min="30" max="240" value="100" aria-label="Tempo" />
+
+    <label class="mesure">Mesure
+      <select id="mesure">
+        <option value="2">2/4</option>
+        <option value="3">3/4</option>
+        <option value="4" selected>4/4</option>
+        <option value="6">6/8</option>
+      </select>
+    </label>
+
+    <div id="temps" aria-hidden="true"></div>
+    <button id="jouer" class="jouer">Démarrer</button>
+  </main>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

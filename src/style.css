@@ -1,0 +1,38 @@
+:root {
+  --fond: #0f2a2e;
+  --encre: #f1f5f2;
+  --doux: #8fb0ad;
+  --accent: #ffb703;
+  --ligne: #24484d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--fond);
+  color: var(--encre);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+}
+main { max-width: 26rem; margin: 0 auto; padding: 2rem 0; display: grid; gap: 1.5rem; }
+h1 { margin: 0; font-size: 1.4rem; font-weight: 600; }
+.tempo { display: grid; grid-template-columns: 4rem 1fr 4rem; align-items: center; text-align: center; }
+.tempo output { display: block; font-size: 5rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.tempo span { color: var(--doux); font-size: 0.9rem; }
+button, select {
+  font: inherit; color: var(--encre); background: transparent;
+  border: 2px solid var(--ligne); border-radius: 0.75rem; min-height: 3rem;
+}
+.tempo button { font-size: 2rem; width: 4rem; height: 4rem; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.mesure { display: flex; justify-content: space-between; align-items: center; color: var(--doux); }
+select { padding: 0 1rem; color: var(--encre); background: var(--fond); }
+#temps { display: flex; gap: 0.6rem; justify-content: center; min-height: 2.5rem; }
+#temps i { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 2px solid var(--ligne); }
+#temps i.premier { border-color: var(--doux); }
+#temps i.actif { background: var(--accent); border-color: var(--accent); }
+.jouer {
+  background: var(--accent); color: #1b1300; border-color: var(--accent);
+  font-weight: 700; font-size: 1.2rem; min-height: 3.6rem;
+}
+.jouer.marche { background: transparent; color: var(--accent); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
