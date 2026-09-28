@@ -38,11 +38,16 @@ select { padding: 0 1rem; color: var(--encre); background: var(--fond); }
 button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
 
 /* Onglets */
-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.3rem; }
-nav button { font-weight: 600; font-size: 0.8rem; padding: 0 0.1rem; }
+nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+nav button { font-weight: 600; font-size: 0.95rem; padding: 0 0.2rem; }
 nav button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
 section { display: grid; gap: 1.5rem; }
 section[hidden] { display: none; }
+#vue-voix { gap: 1.5rem; }
+.sous-onglets { grid-template-columns: 1fr 1fr; }
+.sous-onglets button { font-size: 0.85rem; min-height: 2.6rem; }
+#vue-cercle-int, #vue-tonal-int { display: grid; gap: 1.5rem; }
+#vue-cercle-int[hidden], #vue-tonal-int[hidden] { display: none; }
 
 /* Accordeur */
 .note { margin: 0; text-align: center; font-size: 6rem; font-weight: 700; line-height: 1; min-height: 6rem; }
@@ -76,3 +81,5 @@ progress[hidden], .autres[hidden], .erreur[hidden] { display: none; }
 #cadran .c-note { fill: var(--encre); font-size: 40px; font-weight: 700; }
 #cadran .c-dec { fill: var(--doux); font-size: 16px; }
 #c-zero { width: 100%; }
+
+.aide { margin: 0; text-align: center; color: var(--doux); font-size: 0.95rem; }

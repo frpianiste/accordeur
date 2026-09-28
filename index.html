@@ -11,8 +11,7 @@
     <nav role="tablist" aria-label="Outils">
       <button role="tab" id="onglet-metro" aria-selected="true">Métronome</button>
       <button role="tab" id="onglet-accord" aria-selected="false">Accordeur</button>
-      <button role="tab" id="onglet-tonal" aria-selected="false">Tonalité</button>
-      <button role="tab" id="onglet-cercle" aria-selected="false">Cercle</button>
+      <button role="tab" id="onglet-voix" aria-selected="false">Voix</button>
     </nav>
 
     <section id="vue-metro">
@@ -46,30 +45,39 @@
       <p id="erreur" class="erreur" role="alert" hidden></p>
     </section>
 
-    <section id="vue-tonal" hidden>
-      <p id="tonalite" class="tonalite" aria-live="polite">–</p>
-      <p id="tonal-etat" class="etat" aria-live="polite">Chante, joue ou mets de la musique près du micro</p>
-      <progress id="progres" max="100" value="0" hidden></progress>
-      <p id="autres" class="autres" hidden></p>
-      <button id="ecouter" class="jouer">Écouter 10 secondes</button>
-      <p id="erreur-tonal" class="erreur" role="alert" hidden></p>
-    </section>
+    <section id="vue-voix" hidden>
+      <nav role="tablist" aria-label="Mode voix" class="sous-onglets">
+        <button role="tab" id="mode-cercle" aria-selected="true">Note en direct</button>
+        <button role="tab" id="mode-tonal" aria-selected="false">Tonalité du morceau</button>
+      </nav>
 
-    <section id="vue-cercle" hidden>
-      <svg id="cadran" viewBox="0 0 300 300" role="img" aria-label="Cadran des demi-tons, de -12 à +12">
-        <circle class="anneau" cx="150" cy="150" r="105" />
-        <g id="graduations"></g>
-        <g id="aiguille-c" transform="rotate(0 150 150)">
-          <line class="trait" x1="150" y1="112" x2="150" y2="50" />
-          <circle class="pointe" cx="150" cy="50" r="6" />
-        </g>
-        <text id="c-note" class="c-note" x="150" y="158" text-anchor="middle">–</text>
-        <text id="c-decalage" class="c-dec" x="150" y="186" text-anchor="middle"></text>
-      </svg>
-      <p id="c-etat" class="etat" aria-live="polite">Appuie sur « Écouter », puis chante une note : ce sera le 00</p>
-      <button id="c-ecouter" class="jouer">Écouter</button>
-      <button id="c-zero">Nouveau 00</button>
-      <p id="c-erreur" class="erreur" role="alert" hidden></p>
+      <div id="vue-cercle-int">
+        <p class="aide">Suit ta voix ou ton instrument note par note, pendant que tu chantes ou joues.</p>
+        <svg id="cadran" viewBox="0 0 300 300" role="img" aria-label="Cadran des demi-tons, de -12 à +12">
+          <circle class="anneau" cx="150" cy="150" r="105" />
+          <g id="graduations"></g>
+          <g id="aiguille-c" transform="rotate(0 150 150)">
+            <line class="trait" x1="150" y1="112" x2="150" y2="50" />
+            <circle class="pointe" cx="150" cy="50" r="6" />
+          </g>
+          <text id="c-note" class="c-note" x="150" y="158" text-anchor="middle">–</text>
+          <text id="c-decalage" class="c-dec" x="150" y="186" text-anchor="middle"></text>
+        </svg>
+        <p id="c-etat" class="etat" aria-live="polite">Appuie sur « Écouter », puis chante une note : ce sera le 00</p>
+        <button id="c-ecouter" class="jouer">Écouter</button>
+        <button id="c-zero">Nouveau 00</button>
+        <p id="c-erreur" class="erreur" role="alert" hidden></p>
+      </div>
+
+      <div id="vue-tonal-int" hidden>
+        <p class="aide">Trouve la tonalité d'un morceau ou d'une mélodie entière (réponse après 10 secondes).</p>
+        <p id="tonalite" class="tonalite" aria-live="polite">–</p>
+        <p id="tonal-etat" class="etat" aria-live="polite">Chante, joue ou mets de la musique près du micro</p>
+        <progress id="progres" max="100" value="0" hidden></progress>
+        <p id="autres" class="autres" hidden></p>
+        <button id="ecouter" class="jouer">Écouter 10 secondes</button>
+        <p id="erreur-tonal" class="erreur" role="alert" hidden></p>
+      </div>
     </section>
   </main>
   <script type="module" src="/src/main.js"></script>

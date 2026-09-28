@@ -8,19 +8,29 @@ const $ = (id) => document.getElementById(id);
 
 /* ---------- Onglets ---------- */
 function afficher(nom) {
-  for (const v of ['metro', 'accord', 'tonal', 'cercle']) {
+  for (const v of ['metro', 'accord', 'voix']) {
     $('vue-' + v).hidden = v !== nom;
     $('onglet-' + v).setAttribute('aria-selected', v === nom);
   }
   if (nom !== 'metro') arreterMetronome();
   if (nom !== 'accord') arreterAccordeur();
-  if (nom !== 'tonal') arreterTonalite();
-  if (nom !== 'cercle') arreterCercle();
+  if (nom !== 'voix') { arreterTonalite(); arreterCercle(); }
 }
 $('onglet-metro').onclick = () => afficher('metro');
 $('onglet-accord').onclick = () => afficher('accord');
-$('onglet-tonal').onclick = () => afficher('tonal');
-$('onglet-cercle').onclick = () => afficher('cercle');
+$('onglet-voix').onclick = () => afficher('voix');
+
+/* ---------- Voix : choix entre « Note en direct » (cercle) et « Tonalité du morceau » ---------- */
+function afficherModeVoix(mode) {
+  const cercleActif = mode === 'cercle';
+  $('vue-cercle-int').hidden = !cercleActif;
+  $('vue-tonal-int').hidden = cercleActif;
+  $('mode-cercle').setAttribute('aria-selected', cercleActif);
+  $('mode-tonal').setAttribute('aria-selected', !cercleActif);
+  if (cercleActif) arreterTonalite(); else arreterCercle();
+}
+$('mode-cercle').onclick = () => afficherModeVoix('cercle');
+$('mode-tonal').onclick = () => afficherModeVoix('tonal');
 
 /* ---------- Métronome ---------- */
 const affichage = $('bpm'), curseur = $('curseur'), mesure = $('mesure');
@@ -193,14 +203,14 @@ for (let k = -11; k <= 12; k++) {
   tic.setAttribute('x2', x2); tic.setAttribute('y2', y2);
   $('graduations').appendChild(tic);
 }
-for (let k = -12; k <= 12; k++) {
-  const angle = k === 12 ? 168 : k === -12 ? -168 : k * 15; // +12 et −12 se rejoignent en bas
+for (let k = -11; k <= 12; k++) {
+  const angle = k * 15; // k = 12 : tout en bas, un seul repère « ±12 » (+12 et −12 se rejoignent)
   const [x, y] = point(angle, 128);
   const t = document.createElementNS(SVG, 'text');
   t.setAttribute('class', k === 0 ? 'num zero' : 'num');
   t.setAttribute('x', x); t.setAttribute('y', y);
   t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
-  t.textContent = k === 0 ? '00' : k > 0 ? String(k) : '−' + -k;
+  t.textContent = k === 0 ? '00' : k === 12 ? '±12' : k > 0 ? String(k) : '−' + -k;
   $('graduations').appendChild(t);
 }
 
