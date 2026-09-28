@@ -42,6 +42,7 @@ export class Accordeur {
     this.analyseur.fftSize = 4096;
     source.connect(this.analyseur);
     this.tampon = new Float32Array(this.analyseur.fftSize);
+    this.octets = new Uint8Array(this.analyseur.fftSize);
     this.detecteur = PitchDetector.forFloat32Array(this.analyseur.fftSize);
     this.actif = true;
     this.derniere = 0;
@@ -57,7 +58,13 @@ export class Accordeur {
 
   boucle() {
     if (!this.actif) return;
-    this.analyseur.getFloat32TimeDomainData(this.tampon);
+    if (this.analyseur.getFloat32TimeDomainData) {
+      this.analyseur.getFloat32TimeDomainData(this.tampon);
+    } else {
+      // Anciens Safari : pas de version décimale, on convertit la version en octets
+      this.analyseur.getByteTimeDomainData(this.octets);
+      for (let i = 0; i < this.octets.length; i++) this.tampon[i] = (this.octets[i] - 128) / 128;
+    }
     const [freq, clarte] = this.detecteur.findPitch(this.tampon, this.ctx.sampleRate);
     const maintenant = performance.now();
     if (clarte > 0.92 && freq > 65 && freq < 400) {
