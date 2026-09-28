@@ -1,20 +1,23 @@
 import './style.css';
 import { Metronome } from './metronome.js';
 import { Accordeur, CORDES } from './accordeur.js';
+import { Tonalite } from './tonalite.js';
 
 const $ = (id) => document.getElementById(id);
 
 /* ---------- Onglets ---------- */
 function afficher(nom) {
-  const metro = nom === 'metro';
-  $('vue-metro').hidden = !metro;
-  $('vue-accord').hidden = metro;
-  $('onglet-metro').setAttribute('aria-selected', metro);
-  $('onglet-accord').setAttribute('aria-selected', !metro);
-  if (metro) arreterAccordeur(); else arreterMetronome();
+  for (const v of ['metro', 'accord', 'tonal']) {
+    $('vue-' + v).hidden = v !== nom;
+    $('onglet-' + v).setAttribute('aria-selected', v === nom);
+  }
+  if (nom !== 'metro') arreterMetronome();
+  if (nom !== 'accord') arreterAccordeur();
+  if (nom !== 'tonal') arreterTonalite();
 }
 $('onglet-metro').onclick = () => afficher('metro');
 $('onglet-accord').onclick = () => afficher('accord');
+$('onglet-tonal').onclick = () => afficher('tonal');
 
 /* ---------- Métronome ---------- */
 const affichage = $('bpm'), curseur = $('curseur'), mesure = $('mesure');
@@ -111,5 +114,62 @@ micro.onclick = async () => {
     accordeur.arreter();
     erreur.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
     erreur.hidden = false;
+  }
+};
+
+/* ---------- Tonalité ---------- */
+const tonalite = new Tonalite();
+const tonaliteEl = $('tonalite'), etatTonal = $('tonal-etat'), progres = $('progres');
+const autres = $('autres'), ecouter = $('ecouter'), erreurTonal = $('erreur-tonal');
+const DUREE = 10;
+
+function reinitialiserTonalite() {
+  progres.hidden = true;
+  progres.value = 0;
+  ecouter.textContent = 'Écouter 10 secondes';
+  ecouter.classList.remove('marche');
+}
+
+function arreterTonalite() {
+  tonalite.arreter();
+  reinitialiserTonalite();
+}
+
+ecouter.onclick = async () => {
+  erreurTonal.hidden = true;
+  if (tonalite.actif) return arreterTonalite();
+  tonaliteEl.textContent = '…';
+  autres.hidden = true;
+  etatTonal.textContent = 'Écoute en cours : chante, joue ou mets la musique';
+  progres.hidden = false;
+  ecouter.textContent = 'Arrêter';
+  ecouter.classList.add('marche');
+  try {
+    await tonalite.demarrer(
+      DUREE,
+      (f) => { progres.value = Math.round(f * 100); },
+      (classement) => {
+        reinitialiserTonalite();
+        if (!classement) {
+          tonaliteEl.textContent = '–';
+          etatTonal.textContent = "Pas assez de son. Rapproche le téléphone de la source et réessaie.";
+          return;
+        }
+        tonaliteEl.textContent = classement[0].nom;
+        etatTonal.textContent = classement[0].score < 0.5
+          ? 'Résultat incertain : essaie plus longtemps ou plus près.'
+          : 'Tonalité la plus probable';
+        autres.textContent = 'Autres possibilités : ' + classement[1].nom + ', ' + classement[2].nom;
+        autres.hidden = false;
+        ecouter.textContent = 'Écouter à nouveau';
+      },
+    );
+  } catch (e) {
+    tonalite.arreter();
+    reinitialiserTonalite();
+    tonaliteEl.textContent = '–';
+    etatTonal.textContent = 'Chante, joue ou mets de la musique près du micro';
+    erreurTonal.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
+    erreurTonal.hidden = false;
   }
 };

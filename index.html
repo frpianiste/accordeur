@@ -11,6 +11,7 @@
     <nav role="tablist" aria-label="Outils">
       <button role="tab" id="onglet-metro" aria-selected="true">Métronome</button>
       <button role="tab" id="onglet-accord" aria-selected="false">Accordeur</button>
+      <button role="tab" id="onglet-tonal" aria-selected="false">Tonalité</button>
     </nav>
 
     <section id="vue-metro">
@@ -42,6 +43,15 @@
       <ul id="cordes" class="cordes"></ul>
       <button id="micro" class="jouer">Activer le micro</button>
       <p id="erreur" class="erreur" role="alert" hidden></p>
+    </section>
+
+    <section id="vue-tonal" hidden>
+      <p id="tonalite" class="tonalite" aria-live="polite">–</p>
+      <p id="tonal-etat" class="etat" aria-live="polite">Chante, joue ou mets de la musique près du micro</p>
+      <progress id="progres" max="100" value="0" hidden></progress>
+      <p id="autres" class="autres" hidden></p>
+      <button id="ecouter" class="jouer">Écouter 10 secondes</button>
+      <p id="erreur-tonal" class="erreur" role="alert" hidden></p>
     </section>
   </main>
   <script type="module" src="/src/main.js"></script>
