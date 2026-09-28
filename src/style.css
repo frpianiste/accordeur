@@ -76,6 +76,7 @@ progress[hidden], .autres[hidden], .erreur[hidden] { display: none; }
 #cadran .tic.zero { stroke: var(--accent); stroke-width: 4; }
 #cadran .num { fill: var(--doux); font-size: 12px; font-weight: 600; }
 #cadran .num.zero { fill: var(--accent); }
+#cadran .signe { fill: var(--doux); font-size: 13px; font-weight: 700; }
 #cadran .trait { stroke: var(--accent); stroke-width: 4; stroke-linecap: round; }
 #cadran .pointe { fill: var(--accent); }
 #cadran .c-note { fill: var(--encre); font-size: 40px; font-weight: 700; }

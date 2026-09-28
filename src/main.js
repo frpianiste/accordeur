@@ -204,14 +204,30 @@ for (let k = -11; k <= 12; k++) {
   $('graduations').appendChild(tic);
 }
 for (let k = -11; k <= 12; k++) {
-  const angle = k * 15; // k = 12 : tout en bas, un seul repère « ±12 » (+12 et −12 se rejoignent)
+  const angle = k * 15;
   const [x, y] = point(angle, 128);
   const t = document.createElementNS(SVG, 'text');
   t.setAttribute('class', k === 0 ? 'num zero' : 'num');
   t.setAttribute('x', x); t.setAttribute('y', y);
   t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
-  t.textContent = k === 0 ? '00' : k === 12 ? '±12' : k > 0 ? String(k) : '−' + -k;
+  t.textContent = k === 0 ? '00' : k === 12 ? '12' : k > 0 ? String(k) : '−' + -k;
   $('graduations').appendChild(t);
+}
+// En bas, un seul « 12 » (+12 et −12 se rejoignent) : un petit − à gauche et + à droite le précisent
+{
+  const [x, y] = point(180, 140);
+  const moins = document.createElementNS(SVG, 'text');
+  moins.setAttribute('class', 'signe');
+  moins.setAttribute('x', x - 14); moins.setAttribute('y', y);
+  moins.setAttribute('text-anchor', 'middle'); moins.setAttribute('dominant-baseline', 'central');
+  moins.textContent = '−';
+  $('graduations').appendChild(moins);
+  const plus = document.createElementNS(SVG, 'text');
+  plus.setAttribute('class', 'signe');
+  plus.setAttribute('x', x + 14); plus.setAttribute('y', y);
+  plus.setAttribute('text-anchor', 'middle'); plus.setAttribute('dominant-baseline', 'central');
+  plus.textContent = '+';
+  $('graduations').appendChild(plus);
 }
 
 const nomNote = (midi) => NOTES[((Math.round(midi) % 12) + 12) % 12];
