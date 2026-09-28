@@ -36,3 +36,24 @@ select { padding: 0 1rem; color: var(--encre); background: var(--fond); }
 }
 .jouer.marche { background: transparent; color: var(--accent); }
 button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
+
+/* Onglets */
+nav { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+nav button { font-weight: 600; }
+nav button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
+section { display: grid; gap: 1.5rem; }
+section[hidden] { display: none; }
+
+/* Accordeur */
+.note { margin: 0; text-align: center; font-size: 6rem; font-weight: 700; line-height: 1; min-height: 6rem; }
+.etat { margin: 0; text-align: center; color: var(--doux); min-height: 1.5rem; }
+.etat.juste { color: var(--accent); font-weight: 700; }
+.jauge { position: relative; height: 3rem; border: 2px solid var(--ligne); border-radius: 0.75rem; overflow: hidden; }
+.jauge .milieu { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--doux); }
+.aiguille { position: absolute; top: 0.4rem; bottom: 0.4rem; width: 0.5rem; margin-left: -0.25rem; left: 50%; border-radius: 0.25rem; background: var(--doux); transition: left 0.08s linear; }
+.aiguille.juste { background: var(--accent); }
+.cordes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem; }
+.cordes li { text-align: center; padding: 0.6rem 0; border: 2px solid var(--ligne); border-radius: 0.6rem; color: var(--doux); font-weight: 600; }
+.cordes li.actif { border-color: var(--accent); color: var(--accent); }
+.erreur { margin: 0; color: #ffd6a0; }
+@media (prefers-reduced-motion: reduce) { .aiguille { transition: none; } }
