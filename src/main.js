@@ -107,8 +107,9 @@ micro.onclick = async () => {
     await accordeur.demarrer();
     micro.textContent = 'Arrêter le micro';
     micro.classList.add('marche');
-  } catch {
-    erreur.textContent = "Micro impossible : autorise le micro pour ce site dans les réglages de ton navigateur, puis réessaie.";
+  } catch (e) {
+    accordeur.arreter();
+    erreur.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
     erreur.hidden = false;
   }
 };

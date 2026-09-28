@@ -20,12 +20,23 @@ export class Accordeur {
   }
 
   async demarrer() {
-    // Pas de traitement de la voix : on veut le son brut de l'instrument
-    this.flux = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-    });
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("micro indisponible sur cette adresse (il faut une adresse https)");
+    }
+    // iPhone : le contexte audio doit être créé tout de suite, pendant l'appui
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    await this.ctx.resume();
+    const reprise = this.ctx.resume();
+    try {
+      // Pas de traitement de la voix : on veut le son brut de l'instrument
+      this.flux = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      });
+    } catch (e) {
+      this.ctx.close();
+      this.ctx = null;
+      throw e;
+    }
+    await reprise;
     const source = this.ctx.createMediaStreamSource(this.flux);
     this.analyseur = this.ctx.createAnalyser();
     this.analyseur.fftSize = 4096;
