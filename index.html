@@ -82,17 +82,23 @@
     </section>
 
     <section id="vue-percu" hidden>
-      <p class="aide">Tape sur un fût : l'app affiche la note qu'elle entend. Choisis une note cible si tu veux accorder tes fûts entre eux.</p>
-      <nav role="tablist" aria-label="Fût" class="sous-onglets sous-onglets-3">
+      <p class="aide">Choisis le fût, puis la peau que tu règles (frappe = dessus, résonance = dessous), et tape dessus. Une note cible est facultative : il n'existe pas de norme universelle, c'est toi qui choisis le son que tu veux.</p>
+      <nav role="tablist" aria-label="Fût" class="sous-onglets sous-onglets-4">
         <button role="tab" class="fut" id="fut-claire" aria-selected="true">Caisse claire</button>
         <button role="tab" class="fut" id="fut-aigu" aria-selected="false">Tom aigu</button>
         <button role="tab" class="fut" id="fut-medium" aria-selected="false">Tom medium</button>
+        <button role="tab" class="fut" id="fut-basse" aria-selected="false">Tom basse</button>
+      </nav>
+
+      <nav role="tablist" aria-label="Peau" class="sous-onglets">
+        <button role="tab" class="peau" id="peau-frappe" aria-selected="true">Peau de frappe</button>
+        <button role="tab" class="peau" id="peau-resonance" aria-selected="false">Peau de résonance</button>
       </nav>
 
       <p id="p-note" class="tonalite" aria-live="polite">–</p>
       <p id="p-freq" class="p-freq">&nbsp;</p>
 
-      <label class="cible">Note cible (facultatif)
+      <label class="cible">Note cible de cette peau (facultatif)
         <select id="p-cible">
           <option value="">Aucune</option>
           <option>Do</option><option>Do♯</option><option>Ré</option><option>Mi♭</option>
@@ -101,6 +107,7 @@
         </select>
       </label>
       <p id="p-ecart" class="etat" aria-live="polite">&nbsp;</p>
+      <p id="p-deux-peaux" class="p-deux-peaux" aria-live="polite">&nbsp;</p>
 
       <button id="p-ecouter" class="jouer">Écouter</button>
       <p id="p-erreur" class="erreur" role="alert" hidden></p>
