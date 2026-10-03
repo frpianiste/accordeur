@@ -286,31 +286,65 @@ cEcouter.onclick = async () => {
   }
 };
 
-/* ---------- Percussions : caisse claire, tom aigu, tom medium ---------- */
+/* ---------- Percussions : caisse claire, tom aigu, tom medium, tom basse — 2 peaux chacun ---------- */
 const FUTS = {
   claire: $('fut-claire'),
   aigu: $('fut-aigu'),
   medium: $('fut-medium'),
+  basse: $('fut-basse'),
 };
-let futActuel = 'claire';
-const pNote = $('p-note'), pFreq = $('p-freq'), pCible = $('p-cible'), pEcart = $('p-ecart');
+const PEAUX = { frappe: $('peau-frappe'), resonance: $('peau-resonance') };
+let futActuel = 'claire', peauActuelle = 'frappe';
+const pNote = $('p-note'), pFreq = $('p-freq'), pCible = $('p-cible');
+const pEcart = $('p-ecart'), pDeuxPeaux = $('p-deux-peaux');
 const pEcouter = $('p-ecouter'), pErreur = $('p-erreur');
-// On garde la note cible séparément pour chaque fût
-const cibles = { claire: '', aigu: '', medium: '' };
+// Une note cible par fût ET par peau (frappe et résonance réglées séparément)
+const cibles = {
+  claire: { frappe: '', resonance: '' },
+  aigu: { frappe: '', resonance: '' },
+  medium: { frappe: '', resonance: '' },
+  basse: { frappe: '', resonance: '' },
+};
+
+function rafraichirAffichage() {
+  pCible.value = cibles[futActuel][peauActuelle];
+  pNote.textContent = '–';
+  pFreq.innerHTML = '&nbsp;';
+  pEcart.innerHTML = '&nbsp;';
+  const { frappe, resonance } = cibles[futActuel];
+  if (frappe && resonance) {
+    const ecart = ecartCourt(frappe, resonance);
+    pDeuxPeaux.textContent = ecart === 0
+      ? `Les deux peaux visent la même note (${frappe})`
+      : ecart > 0
+        ? `Résonance ${ecart} demi-ton${ecart > 1 ? 's' : ''} au-dessus de la frappe`
+        : `Résonance ${-ecart} demi-ton${-ecart > 1 ? 's' : ''} en dessous de la frappe`;
+    pDeuxPeaux.classList.add('renseigne');
+  } else {
+    pDeuxPeaux.innerHTML = '&nbsp;';
+    pDeuxPeaux.classList.remove('renseigne');
+  }
+}
 
 function choisirFut(nom) {
   futActuel = nom;
   for (const [k, bouton] of Object.entries(FUTS)) bouton.setAttribute('aria-selected', k === nom);
-  pCible.value = cibles[nom];
-  pNote.textContent = '–';
-  pFreq.innerHTML = '&nbsp;';
-  pEcart.innerHTML = '&nbsp;';
+  rafraichirAffichage();
 }
 FUTS.claire.onclick = () => choisirFut('claire');
 FUTS.aigu.onclick = () => choisirFut('aigu');
 FUTS.medium.onclick = () => choisirFut('medium');
+FUTS.basse.onclick = () => choisirFut('basse');
 
-pCible.onchange = () => { cibles[futActuel] = pCible.value; pEcart.innerHTML = '&nbsp;'; };
+function choisirPeau(nom) {
+  peauActuelle = nom;
+  for (const [k, bouton] of Object.entries(PEAUX)) bouton.setAttribute('aria-selected', k === nom);
+  rafraichirAffichage();
+}
+PEAUX.frappe.onclick = () => choisirPeau('frappe');
+PEAUX.resonance.onclick = () => choisirPeau('resonance');
+
+pCible.onchange = () => { cibles[futActuel][peauActuelle] = pCible.value; rafraichirAffichage(); };
 
 const percussion = new Percussion((coup) => {
   if (!coup) {
@@ -321,11 +355,11 @@ const percussion = new Percussion((coup) => {
   }
   pNote.textContent = coup.note;
   pFreq.textContent = `${coup.freq.toFixed(1)} Hz`;
-  const cible = cibles[futActuel];
+  const cible = cibles[futActuel][peauActuelle];
   if (!cible) { pEcart.innerHTML = '&nbsp;'; return; }
   const ecart = ecartCourt(coup.note, cible);
   pEcart.textContent = ecart === 0
-    ? `Accordé sur ${cible}`
+    ? `Accordée sur ${cible}`
     : ecart > 0
       ? `${ecart} demi-ton${ecart > 1 ? 's' : ''} trop bas : tends la peau`
       : `${-ecart} demi-ton${-ecart > 1 ? 's' : ''} trop haut : détends la peau`;
