@@ -48,8 +48,6 @@ section[hidden] { display: none; }
 .sous-onglets button { font-size: 0.85rem; min-height: 2.6rem; }
 .sous-onglets-3 { grid-template-columns: repeat(3, 1fr); }
 .sous-onglets-3 button { font-size: 0.78rem; padding: 0 0.1rem; }
-.sous-onglets-4 { grid-template-columns: repeat(4, 1fr); }
-.sous-onglets-4 button { font-size: 0.7rem; padding: 0 0.05rem; }
 #vue-cercle-int, #vue-tonal-int { display: grid; gap: 1.5rem; }
 #vue-cercle-int[hidden], #vue-tonal-int[hidden] { display: none; }
 
@@ -93,5 +91,3 @@ progress[hidden], .autres[hidden], .erreur[hidden] { display: none; }
 .p-freq { margin: 0; text-align: center; color: var(--doux); min-height: 1.3rem; font-variant-numeric: tabular-nums; }
 .cible { display: flex; justify-content: space-between; align-items: center; color: var(--doux); gap: 1rem; }
 .cible select { flex: 1; max-width: 10rem; }
-.p-deux-peaux { margin: 0; text-align: center; color: var(--doux); font-size: 0.9rem; min-height: 1.3rem; }
-.p-deux-peaux.renseigne { color: var(--encre); }
