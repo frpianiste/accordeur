@@ -38,14 +38,16 @@ select { padding: 0 1rem; color: var(--encre); background: var(--fond); }
 button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
 
 /* Onglets */
-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
-nav button { font-weight: 600; font-size: 0.95rem; padding: 0 0.2rem; }
+nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; }
+nav button { font-weight: 600; font-size: 0.85rem; padding: 0 0.15rem; }
 nav button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
 section { display: grid; gap: 1.5rem; }
 section[hidden] { display: none; }
 #vue-voix { gap: 1.5rem; }
 .sous-onglets { grid-template-columns: 1fr 1fr; }
 .sous-onglets button { font-size: 0.85rem; min-height: 2.6rem; }
+.sous-onglets-3 { grid-template-columns: repeat(3, 1fr); }
+.sous-onglets-3 button { font-size: 0.78rem; padding: 0 0.1rem; }
 #vue-cercle-int, #vue-tonal-int { display: grid; gap: 1.5rem; }
 #vue-cercle-int[hidden], #vue-tonal-int[hidden] { display: none; }
 
@@ -84,3 +86,8 @@ progress[hidden], .autres[hidden], .erreur[hidden] { display: none; }
 #c-zero { width: 100%; }
 
 .aide { margin: 0; text-align: center; color: var(--doux); font-size: 0.95rem; }
+
+/* Percussions */
+.p-freq { margin: 0; text-align: center; color: var(--doux); min-height: 1.3rem; font-variant-numeric: tabular-nums; }
+.cible { display: flex; justify-content: space-between; align-items: center; color: var(--doux); gap: 1rem; }
+.cible select { flex: 1; max-width: 10rem; }

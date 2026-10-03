@@ -3,22 +3,25 @@ import { Metronome } from './metronome.js';
 import { Accordeur, CORDES } from './accordeur.js';
 import { Tonalite, NOTES } from './tonalite.js';
 import { Voix } from './voix.js';
+import { Percussion, ecartCourt } from './percussion.js';
 
 const $ = (id) => document.getElementById(id);
 
 /* ---------- Onglets ---------- */
 function afficher(nom) {
-  for (const v of ['metro', 'accord', 'voix']) {
+  for (const v of ['metro', 'accord', 'voix', 'percu']) {
     $('vue-' + v).hidden = v !== nom;
     $('onglet-' + v).setAttribute('aria-selected', v === nom);
   }
   if (nom !== 'metro') arreterMetronome();
   if (nom !== 'accord') arreterAccordeur();
   if (nom !== 'voix') { arreterTonalite(); arreterCercle(); }
+  if (nom !== 'percu') arreterPercussion();
 }
 $('onglet-metro').onclick = () => afficher('metro');
 $('onglet-accord').onclick = () => afficher('accord');
 $('onglet-voix').onclick = () => afficher('voix');
+$('onglet-percu').onclick = () => afficher('percu');
 
 /* ---------- Voix : choix entre « Note en direct » (cercle) et « Tonalité du morceau » ---------- */
 function afficherModeVoix(mode) {
@@ -280,5 +283,73 @@ cEcouter.onclick = async () => {
     cercle.arreter();
     cErreur.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
     cErreur.hidden = false;
+  }
+};
+
+/* ---------- Percussions : caisse claire, tom aigu, tom medium ---------- */
+const FUTS = {
+  claire: $('fut-claire'),
+  aigu: $('fut-aigu'),
+  medium: $('fut-medium'),
+};
+let futActuel = 'claire';
+const pNote = $('p-note'), pFreq = $('p-freq'), pCible = $('p-cible'), pEcart = $('p-ecart');
+const pEcouter = $('p-ecouter'), pErreur = $('p-erreur');
+// On garde la note cible séparément pour chaque fût
+const cibles = { claire: '', aigu: '', medium: '' };
+
+function choisirFut(nom) {
+  futActuel = nom;
+  for (const [k, bouton] of Object.entries(FUTS)) bouton.setAttribute('aria-selected', k === nom);
+  pCible.value = cibles[nom];
+  pNote.textContent = '–';
+  pFreq.innerHTML = '&nbsp;';
+  pEcart.innerHTML = '&nbsp;';
+}
+FUTS.claire.onclick = () => choisirFut('claire');
+FUTS.aigu.onclick = () => choisirFut('aigu');
+FUTS.medium.onclick = () => choisirFut('medium');
+
+pCible.onchange = () => { cibles[futActuel] = pCible.value; pEcart.innerHTML = '&nbsp;'; };
+
+const percussion = new Percussion((coup) => {
+  if (!coup) {
+    pNote.textContent = '?';
+    pFreq.textContent = 'Son pas assez net';
+    pEcart.innerHTML = '&nbsp;';
+    return;
+  }
+  pNote.textContent = coup.note;
+  pFreq.textContent = `${coup.freq.toFixed(1)} Hz`;
+  const cible = cibles[futActuel];
+  if (!cible) { pEcart.innerHTML = '&nbsp;'; return; }
+  const ecart = ecartCourt(coup.note, cible);
+  pEcart.textContent = ecart === 0
+    ? `Accordé sur ${cible}`
+    : ecart > 0
+      ? `${ecart} demi-ton${ecart > 1 ? 's' : ''} trop bas : tends la peau`
+      : `${-ecart} demi-ton${-ecart > 1 ? 's' : ''} trop haut : détends la peau`;
+  pEcart.classList.toggle('juste', ecart === 0);
+});
+
+function arreterPercussion() {
+  percussion.arreter();
+  pEcouter.textContent = 'Écouter';
+  pEcouter.classList.remove('marche');
+}
+
+pEcouter.onclick = async () => {
+  pErreur.hidden = true;
+  if (percussion.actif) return arreterPercussion();
+  try {
+    await percussion.demarrer();
+    pEcouter.textContent = 'Arrêter';
+    pEcouter.classList.add('marche');
+    pNote.textContent = '–';
+    pFreq.textContent = 'Tape sur le fût';
+  } catch (e) {
+    percussion.arreter();
+    pErreur.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
+    pErreur.hidden = false;
   }
 };

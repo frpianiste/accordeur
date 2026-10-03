@@ -12,6 +12,7 @@
       <button role="tab" id="onglet-metro" aria-selected="true">Métronome</button>
       <button role="tab" id="onglet-accord" aria-selected="false">Accordeur</button>
       <button role="tab" id="onglet-voix" aria-selected="false">Voix</button>
+      <button role="tab" id="onglet-percu" aria-selected="false">Percussions</button>
     </nav>
 
     <section id="vue-metro">
@@ -78,6 +79,31 @@
         <button id="ecouter" class="jouer">Écouter 10 secondes</button>
         <p id="erreur-tonal" class="erreur" role="alert" hidden></p>
       </div>
+    </section>
+
+    <section id="vue-percu" hidden>
+      <p class="aide">Tape sur un fût : l'app affiche la note qu'elle entend. Choisis une note cible si tu veux accorder tes fûts entre eux.</p>
+      <nav role="tablist" aria-label="Fût" class="sous-onglets sous-onglets-3">
+        <button role="tab" class="fut" id="fut-claire" aria-selected="true">Caisse claire</button>
+        <button role="tab" class="fut" id="fut-aigu" aria-selected="false">Tom aigu</button>
+        <button role="tab" class="fut" id="fut-medium" aria-selected="false">Tom medium</button>
+      </nav>
+
+      <p id="p-note" class="tonalite" aria-live="polite">–</p>
+      <p id="p-freq" class="p-freq">&nbsp;</p>
+
+      <label class="cible">Note cible (facultatif)
+        <select id="p-cible">
+          <option value="">Aucune</option>
+          <option>Do</option><option>Do♯</option><option>Ré</option><option>Mi♭</option>
+          <option>Mi</option><option>Fa</option><option>Fa♯</option><option>Sol</option>
+          <option>La♭</option><option>La</option><option>Si♭</option><option>Si</option>
+        </select>
+      </label>
+      <p id="p-ecart" class="etat" aria-live="polite">&nbsp;</p>
+
+      <button id="p-ecouter" class="jouer">Écouter</button>
+      <p id="p-erreur" class="erreur" role="alert" hidden></p>
     </section>
   </main>
   <script type="module" src="/src/main.js"></script>
