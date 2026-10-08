@@ -90,6 +90,11 @@ progress[hidden], .autres[hidden], .erreur[hidden] { display: none; }
 .aide { margin: 0; text-align: center; color: var(--doux); font-size: 0.95rem; }
 
 /* Percussions */
+.meter { position: relative; height: 1.1rem; border: 2px solid var(--ligne); border-radius: 0.6rem; overflow: hidden; }
+.meter-barre { position: absolute; inset: 0; width: 0%; background: var(--doux); transition: width 0.05s linear; }
+.meter-barre.coup { background: var(--accent); }
+.meter-seuil { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #ffd6a0; left: 50%; }
+.p-meter-etat { margin: 0; text-align: center; color: var(--doux); font-size: 0.85rem; min-height: 1.2rem; }
 .p-freq { margin: 0; text-align: center; color: var(--doux); min-height: 1.3rem; font-variant-numeric: tabular-nums; }
 .cible { display: flex; justify-content: space-between; align-items: center; color: var(--doux); gap: 1rem; }
 .cible select { flex: 1; max-width: 10rem; }

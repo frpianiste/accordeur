@@ -5,14 +5,26 @@ import { NOTES } from './tonalite.js';
 // pas une note tenue comme une corde de guitare. On attend un « coup »
 // (le volume qui monte d'un coup), on lit la hauteur juste après, puis on
 // se remet en attente une fois le son retombé.
-const SEUIL_COUP = 0.09;   // volume à partir duquel on considère que « ça a tapé »
-const SEUIL_REPOS = 0.03;  // volume en dessous duquel on considère que c'est retombé
+//
+// Les seuils ne sont PAS fixes : un micro de téléphone, selon le modèle et
+// la pièce, peut capter un bruit de fond très différent d'un autre. On mesure
+// donc le bruit ambiant pendant la première demi-seconde, puis on calcule les
+// seuils à partir de cette mesure. Un retour automatique au bout d'un court
+// délai évite aussi de rester bloqué si le bruit de fond ne redescend jamais
+// complètement.
+const DUREE_CALIBRAGE = 0.5;     // secondes d'écoute du silence avant de régler les seuils
+const DELAI_RETOUR_MAX = 0.25;   // secondes : on revient en attente même si le son n'est pas retombé
 
 export class Percussion {
-  constructor(onCoup) {
+  constructor(onCoup, onVolume) {
     this.onCoup = onCoup; // reçoit { note, freq, clarte } ou null (son pas assez net)
+    this.onVolume = onVolume; // optionnel : reçoit { volume, seuilCoup } à chaque image, pour un indicateur
     this.actif = false;
-    this.etat = 'attente';
+    this.etat = 'calibrage';
+    this.bruitFond = 0;
+    this.echantillons = 0;
+    this.seuilCoup = 0.03;
+    this.seuilRepos = 0.012;
   }
 
   async demarrer() {
@@ -37,7 +49,10 @@ export class Percussion {
     this.tampon = new Float32Array(this.analyseur.fftSize);
     this.octets = new Uint8Array(this.analyseur.fftSize);
     this.detecteur = PitchDetector.forFloat32Array(this.analyseur.fftSize);
-    this.etat = 'attente';
+    this.etat = 'calibrage';
+    this.bruitFond = 0;
+    this.echantillons = 0;
+    this.debut = performance.now();
     this.actif = true;
     this.boucle();
   }
@@ -60,18 +75,36 @@ export class Percussion {
     let somme = 0;
     for (let i = 0; i < this.tampon.length; i++) somme += this.tampon[i] * this.tampon[i];
     const volume = Math.sqrt(somme / this.tampon.length);
+    const maintenant = performance.now();
 
-    if (this.etat === 'attente' && volume > SEUIL_COUP) {
+    if (this.etat === 'calibrage') {
+      // On mesure le bruit ambiant (pièce, souffle du micro) pour régler les seuils dessus
+      this.bruitFond = Math.max(this.bruitFond, volume);
+      this.echantillons++;
+      if ((maintenant - this.debut) / 1000 >= DUREE_CALIBRAGE) {
+        // Le seuil de déclenchement doit être nettement au-dessus du bruit de fond,
+        // mais jamais ridiculement bas si la pièce était très silencieuse pendant le calibrage
+        this.seuilCoup = Math.max(0.018, this.bruitFond * 3.5);
+        this.seuilRepos = Math.max(0.008, this.bruitFond * 1.5);
+        this.etat = 'attente';
+      }
+    } else if (this.etat === 'attente' && volume > this.seuilCoup) {
       this.etat = 'coup';
+      this.coupDepuis = maintenant;
       const [freq, clarte] = this.detecteur.findPitch(this.tampon, this.ctx.sampleRate);
       if (clarte > 0.55 && freq > 60 && freq < 500) {
         this.onCoup({ note: NOTES[((Math.round(69 + 12 * Math.log2(freq / 440)) % 12) + 12) % 12], freq, clarte });
       } else {
         this.onCoup(null); // coup entendu, mais pas de hauteur assez nette
       }
-    } else if (this.etat === 'coup' && volume < SEUIL_REPOS) {
-      this.etat = 'attente'; // prêt pour le prochain coup
+    } else if (this.etat === 'coup') {
+      // Retour au repos soit quand le son est vraiment retombé, soit après un court délai
+      // dans tous les cas — ça évite de rester bloqué si le bruit de fond ne redescend jamais
+      if (volume < this.seuilRepos || maintenant - this.coupDepuis > DELAI_RETOUR_MAX * 1000) {
+        this.etat = 'attente';
+      }
     }
+    this.onVolume?.({ volume, seuilCoup: this.seuilCoup, pret: this.etat !== 'calibrage' });
     requestAnimationFrame(() => this.boucle());
   }
 }

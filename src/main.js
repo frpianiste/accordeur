@@ -298,6 +298,7 @@ let futActuel = 'claire', peauActuelle = 'frappe';
 const pNote = $('p-note'), pFreq = $('p-freq'), pCible = $('p-cible');
 const pEcart = $('p-ecart'), pDeuxPeaux = $('p-deux-peaux');
 const pEcouter = $('p-ecouter'), pErreur = $('p-erreur');
+const pMeterBarre = $('p-meter-barre'), pMeterSeuil = $('p-meter-seuil'), pMeterEtat = $('p-meter-etat');
 // Une note cible par fût ET par peau (frappe et résonance réglées séparément)
 const cibles = {
   claire: { frappe: '', resonance: '' },
@@ -346,30 +347,43 @@ PEAUX.resonance.onclick = () => choisirPeau('resonance');
 
 pCible.onchange = () => { cibles[futActuel][peauActuelle] = pCible.value; rafraichirAffichage(); };
 
-const percussion = new Percussion((coup) => {
-  if (!coup) {
-    pNote.textContent = '?';
-    pFreq.textContent = 'Son pas assez net';
-    pEcart.innerHTML = '&nbsp;';
-    return;
-  }
-  pNote.textContent = coup.note;
-  pFreq.textContent = `${coup.freq.toFixed(1)} Hz`;
-  const cible = cibles[futActuel][peauActuelle];
-  if (!cible) { pEcart.innerHTML = '&nbsp;'; return; }
-  const ecart = ecartCourt(coup.note, cible);
-  pEcart.textContent = ecart === 0
-    ? `Accordée sur ${cible}`
-    : ecart > 0
-      ? `${ecart} demi-ton${ecart > 1 ? 's' : ''} trop bas : tends la peau`
-      : `${-ecart} demi-ton${-ecart > 1 ? 's' : ''} trop haut : détends la peau`;
-  pEcart.classList.toggle('juste', ecart === 0);
-});
+const percussion = new Percussion(
+  (coup) => {
+    if (!coup) {
+      pNote.textContent = '?';
+      pFreq.textContent = 'Son pas assez net';
+      pEcart.innerHTML = '&nbsp;';
+      return;
+    }
+    pNote.textContent = coup.note;
+    pFreq.textContent = `${coup.freq.toFixed(1)} Hz`;
+    const cible = cibles[futActuel][peauActuelle];
+    if (!cible) { pEcart.innerHTML = '&nbsp;'; return; }
+    const ecart = ecartCourt(coup.note, cible);
+    pEcart.textContent = ecart === 0
+      ? `Accordée sur ${cible}`
+      : ecart > 0
+        ? `${ecart} demi-ton${ecart > 1 ? 's' : ''} trop bas : tends la peau`
+        : `${-ecart} demi-ton${-ecart > 1 ? 's' : ''} trop haut : détends la peau`;
+    pEcart.classList.toggle('juste', ecart === 0);
+  },
+  ({ volume, seuilCoup, pret }) => {
+    // Indicateur en direct : utile pour voir pourquoi un coup n'est pas détecté
+    const pourcent = Math.min(100, (volume / Math.max(seuilCoup * 2, 0.02)) * 100);
+    pMeterBarre.style.width = `${pourcent}%`;
+    pMeterBarre.classList.toggle('coup', volume > seuilCoup);
+    pMeterSeuil.style.left = '50%';
+    pMeterEtat.textContent = pret ? '' : 'Calibrage du bruit ambiant… ne tape pas encore';
+  },
+);
 
 function arreterPercussion() {
   percussion.arreter();
   pEcouter.textContent = 'Écouter';
   pEcouter.classList.remove('marche');
+  pMeterBarre.style.width = '0%';
+  pMeterBarre.classList.remove('coup');
+  pMeterEtat.innerHTML = '&nbsp;';
 }
 
 pEcouter.onclick = async () => {
@@ -381,6 +395,7 @@ pEcouter.onclick = async () => {
     pEcouter.classList.add('marche');
     pNote.textContent = '–';
     pFreq.textContent = 'Tape sur le fût';
+    pMeterEtat.textContent = 'Calibrage du bruit ambiant… ne tape pas encore';
   } catch (e) {
     percussion.arreter();
     pErreur.textContent = `Micro impossible (${e.name} : ${e.message}). Vérifie l'autorisation du micro pour ce site, puis réessaie.`;
